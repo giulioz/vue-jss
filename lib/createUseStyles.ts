@@ -80,7 +80,7 @@ function createUseStyles<Theme = DefaultTheme, C extends string = string>(
         : useDefaultTheme
       : useDefaultTheme
 
-  return function useStyles(data?: any) {
+  return function useStyles(data?: any, customUnmount?: () => void) {
     const theme = useTheme()
 
     const context = injectJssContext()
@@ -155,7 +155,7 @@ function createUseStyles<Theme = DefaultTheme, C extends string = string>(
         : {}
     })
 
-    onBeforeUnmount(() => {
+    const unmountStyles = () => {
       if (sheet) {
         unmanageSheet({
           index,
@@ -167,6 +167,12 @@ function createUseStyles<Theme = DefaultTheme, C extends string = string>(
 
       if (sheet.value && dynamicRules.value) {
         removeDynamicRules(sheet.value, dynamicRules.value)
+      }
+    }
+
+    onBeforeUnmount(() => {
+      if (!customUnmount) {
+        unmountStyles()
       }
     })
 
